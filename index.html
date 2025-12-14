@@ -547,9 +547,14 @@
             </div>
 
             <!-- REGISTRY TABLE -->
+            <!-- REGISTRY TABLE -->
             <div class="registry-container">
-                <h3 style="margin-bottom:1rem;">Recent Uploads</h3>
-                <div class="table-responsive">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                    <h3>Blockchain History</h3>
+                    <button class="btn" onclick="toggleHistory()" id="btn-toggle-history">Show History 🔽</button>
+                </div>
+
+                <div id="history-panel" class="table-responsive" style="display:none;">
                     <table id="filesTable">
                         <thead>
                             <tr>
@@ -797,6 +802,20 @@
             navigator.clipboard.writeText(url)
                 .then(() => showToast("Link Copied! Send it to a friend.", "success"))
                 .catch(() => prompt("Copy this link:", url));
+        }
+
+        function toggleHistory() {
+            const panel = document.getElementById('history-panel');
+            const btn = document.getElementById('btn-toggle-history');
+
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                btn.innerText = 'Hide History 🔼';
+                // Trigger load if empty? (optional optimization)
+            } else {
+                panel.style.display = 'none';
+                btn.innerText = 'Show History 🔽';
+            }
         }
 
         function showQR(hash) {
