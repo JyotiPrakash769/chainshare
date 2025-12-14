@@ -245,7 +245,8 @@
         }
 
         input[type="text"],
-        input[type="file"] {
+        input[type="file"],
+        select {
             width: 100%;
             padding: 1rem;
             background: rgba(0, 0, 0, 0.3);
@@ -254,6 +255,13 @@
             color: white;
             font-family: var(--font-main);
             transition: 0.2s;
+            cursor: pointer;
+        }
+
+        option {
+            background-color: #18181b;
+            /* Dark background for options */
+            color: white;
         }
 
         input:focus {
@@ -531,7 +539,20 @@
                     </div>
 
                     <div class="input-group">
-                        <label>3. GENERATED HASH (ON-CHAIN SIM)</label>
+                        <label>3. LINK EXPIRATION (SELF-DESTRUCT)</label>
+                        <select id="fileExpiry">
+                            <option value="0">Never Expires</option>
+                            <option value="5">5 Minutes</option>
+                            <option value="10">10 Minutes</option>
+                            <option value="15">15 Minutes</option>
+                            <option value="30">30 Minutes</option>
+                            <option value="60">1 Hour</option>
+                            <option value="1440">1 Day</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label>4. GENERATED HASH (ON-CHAIN SIM)</label>
                         <input type="text" id="fileHashDisplay" readonly placeholder="Waiting for upload..." value="">
                     </div>
                 </div>
@@ -637,6 +658,21 @@
             const params = new URLSearchParams(window.location.search);
             const pId = params.get('peer');
             const hash = params.get('hash');
+            const expires = params.get('expires'); // New Param
+
+            // Check Expiry for Receiver
+            if (expires && parseInt(expires) < Date.now()) {
+                document.body.innerHTML = `
+                   <div style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; background:#09090b; color:#ef4444; font-family:sans-serif;">
+                       <h1 style="font-size:4rem;">🚫</h1>
+                       <h2>Link Expired</h2>
+                       <p>This secure link has self-destructed.</p>
+                       <a href="/" style="color:white; margin-top:20px;">Go Home</a>
+                   </div>
+                `;
+                return; // Stop execution
+            }
+
             if (pId && hash) startDownloadProcess(pId, hash);
 
             // Auto-Connect if previously connected
@@ -650,7 +686,15 @@
                 conn.on('data', data => {
                     if (data.type === 'REQUEST_FILE') {
                         const fileData = hostedFiles[data.hash];
+
+                        // SENDER SIDE ENFORCEMENT
                         if (fileData) {
+                            if (fileData.expiry && fileData.expiry < Date.now()) {
+                                console.warn("Request refused: Link Expired");
+                                conn.send({ type: 'ERROR', msg: 'Link Expired' });
+                                return;
+                            }
+
                             console.log("Serving file:", fileData.meta.name);
                             conn.send({
                                 type: 'FILE_RESPONSE',
@@ -730,6 +774,8 @@
             const fileInput = document.getElementById('fileInput');
             const file = fileInput.files[0];
             const desc = document.getElementById('fileDesc').value || "No description";
+            const expiryMinutes = parseInt(document.getElementById('fileExpiry').value); // Get Value
+
             const hashDisplay = document.getElementById('fileHashDisplay');
             const status = document.getElementById('upload-status');
 
@@ -744,8 +790,18 @@
                 hashDisplay.value = hash;
                 console.log("File Hash Calculated:", hash);
 
+                // Calculate Expiry Timestamp (if not 0)
+                let expiryTime = 0;
+                if (expiryMinutes > 0) {
+                    expiryTime = Date.now() + (expiryMinutes * 60 * 1000);
+                }
+
                 // 2. Store locally for P2P serving
-                hostedFiles[hash] = { file: file, meta: { name: file.name, type: file.type } };
+                hostedFiles[hash] = {
+                    file: file,
+                    meta: { name: file.name, type: file.type },
+                    expiry: expiryTime
+                };
 
                 /* 
                  * BLOCKCHAIN INTERACTION 
@@ -766,7 +822,7 @@
                     status.innerHTML = "Ready to Share ✔";
                 }
 
-                addFileRow(file.name, desc, hash);
+                addFileRow(file.name, desc, hash, expiryTime);
 
             } catch (error) {
                 console.error("Upload failed:", error);
@@ -775,32 +831,42 @@
             }
         }
 
-        function addFileRow(name, desc, hash) {
+        function addFileRow(name, desc, hash, expiry = 0) {
             document.getElementById('empty-msg').style.display = 'none';
             const tbody = document.querySelector('#filesTable tbody');
             const tr = document.createElement('tr');
 
+            let expiryTag = "";
+            let expiryParam = "";
+
+            if (expiry > 0) {
+                const minsLeft = Math.ceil((expiry - Date.now()) / 60000);
+                expiryTag = `<span style="color:#ef4444; font-size:0.7rem; border:1px solid #ef4444; padding:2px 6px; border-radius:4px; margin-left:5px;">⏳ ${minsLeft}m</span>`;
+                expiryParam = expiry;
+            }
+
             tr.innerHTML = `
-                <td><strong>${name}</strong></td>
+                <td><strong>${name}</strong>${expiryTag}</td>
                 <td style="color:var(--text-muted);">${desc}</td>
                 <td><span class="hash-mono" title="${hash}">${hash.substring(0, 10)}...${hash.substring(hash.length - 4)}</span></td>
                 <td>
                     <div style="display:flex; gap:0.5rem;">
-                        <button class="btn" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="share('${hash}')">🔗 Copy</button>
-                        <button class="btn" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="showQR('${hash}')">📱 QR</button>
+                        <button class="btn" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="share('${hash}', '${expiryParam}')">🔗 Copy</button>
+                        <button class="btn" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="showQR('${hash}', '${expiryParam}')">📱 QR</button>
                     </div>
                 </td>
             `;
             tbody.prepend(tr);
         }
 
-        function share(hash) {
+        function share(hash, expiry) {
             if (!myPeerId) return showToast("P2P Network initializing... wait.", "error");
 
-            const url = `${window.location.origin}${window.location.pathname}?peer=${myPeerId}&hash=${hash}`;
+            let url = `${window.location.origin}${window.location.pathname}?peer=${myPeerId}&hash=${hash}`;
+            if (expiry && expiry !== "0") url += `&expires=${expiry}`;
 
             navigator.clipboard.writeText(url)
-                .then(() => showToast("Link Copied! Send it to a friend.", "success"))
+                .then(() => showToast("Link Copied! ⏳", "success"))
                 .catch(() => prompt("Copy this link:", url));
         }
 
@@ -818,9 +884,11 @@
             }
         }
 
-        function showQR(hash) {
+        function showQR(hash, expiry) {
             if (!myPeerId) return showToast("P2P Not Ready Yet", "error");
-            const url = `${window.location.origin}${window.location.pathname}?peer=${myPeerId}&hash=${hash}`;
+
+            let url = `${window.location.origin}${window.location.pathname}?peer=${myPeerId}&hash=${hash}`;
+            if (expiry && expiry !== "0") url += `&expires=${expiry}`;
 
             const qrTarget = document.getElementById('qr-target');
             qrTarget.innerHTML = ""; // Clear previous
