@@ -454,11 +454,19 @@
         }
 
         /* QR Modal Handling */
-        #qr-canvas {
-            display: block;
+        #qr-target {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin: 0 auto 1.5rem auto;
             border: 10px solid white;
             border-radius: 10px;
+            width: fit-content;
+        }
+
+        #qr-target img {
+            display: block;
+            /* Removes bottom space */
         }
     </style>
     <!-- QRCode Lib -->
