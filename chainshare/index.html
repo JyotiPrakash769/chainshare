@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChainShare | The Future of File Sharing</title>
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #09090b;
+            --primary: #f5841f;
+            /* MetaMask Fox Orange */
+            --primary-glow: #ffaf59;
+            --secondary: #3b82f6;
+            /* ETH Blue */
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --font-main: 'Outfit', sans-serif;
+            --font-mono: 'Space Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- BACKGROUND ANIMATION --- */
+        .bg-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: linear-gradient(125deg, #000000 0%, #1a1a1a 100%);
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .blob-1 {
+            top: -10%;
+            left: -10%;
+            width: 500px;
+            height: 500px;
+            background: var(--secondary);
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            bottom: -10%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: var(--primary);
+            animation-delay: -5s;
+        }
+
+        .blob-3 {
+            top: 40%;
+            left: 40%;
+            width: 400px;
+            height: 400px;
+            background: #8b5cf6;
+            animation-delay: -10s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+        }
+
+        /* --- LAYOUT & TYPOGRAPHY --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+
+        /* HEADER */
+        header {
+            padding: 2rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 8px;
+        }
+
+        /* BUTTONS */
+        .btn {
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            padding: 0.8rem 1.6rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: var(--font-main);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn:hover {
+            background: var(--glass-bg);
+            transform: translateY(-2px);
+            border-color: white;
+        }
+
+        .btn-primary {
+            background: var(--text-main);
+            color: black;
+            border: none;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-glow);
+            box-shadow: 0 0 30px var(--primary);
+            transform: scale(1.05);
+        }
+
+        /* HERO SECTION */
+        .hero {
+            padding: 6rem 0;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(to right, #fff, #a5a5a5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin-bottom: 3rem;
+        }
+
+        /* APP PANEL */
+        .app-panel {
+            background: rgba(20, 20, 23, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 1s ease-out;
+            margin-bottom: 4rem;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* INPUTS & FORMS */
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: white;
+            font-family: var(--font-main);
+            transition: 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(245, 132, 31, 0.2);
+        }
+
+        input[readonly] {
+            color: var(--primary);
+            font-family: var(--font-mono);
+            cursor: default;
+            border-style: dashed;
+        }
+
+        /* TABLE REGISTRY */
+        .registry-container {
+            margin-top: 3rem;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        tr:hover td {
+            background: var(--glass-bg);
+        }
+
+        /* MODAL */
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-card {
+            background: #18181b;
+            border: 1px solid var(--glass-border);
+            padding: 3rem;
+            border-radius: 30px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            transform: scale(0.9);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.active .modal-card {
+            transform: scale(1);
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-bottom-color: var(--primary);
+            border-radius: 50%;
+            display: inline-block;
+            animation: rotation 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Wallet Badge */
+        .wallet-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 50px;
+            color: var(--secondary);
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .hash-mono {
+            font-family: var(--font-mono);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .app-panel {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ANIMATED BACKGROUND -->
+    <div class="bg-mesh">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- HEADER -->
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon"></div>
+                ChainShare
+            </div>
+            <button class="btn" id="btn-wallet" onclick="connectWallet()">Connect Wallet</button>
+        </header>
+
+        <!-- HERO SECTION -->
+        <section class="hero">
+            <h1>Peer-to-Peer.<br>Reimagined.</h1>
+            <p>The decentralized way to share files. No servers. No limits. Just you and the blockchain.</p>
+        </section>
+
+        <!-- MAIN APP INTERFACE -->
+        <main class="app-panel">
+            <div class="wallet-status"
+                style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h3 style="color:white;">File Transfer</h3>
+                <div id="wallet-display" class="wallet-badge" style="display:none;">
+                    <span
+                        style="width:8px; height:8px; background:var(--secondary); border-radius:50%; box-shadow:0 0 10px var(--secondary);"></span>
+                    <span id="wallet-addr">0x...</span>
+                </div>
+            </div>
+
+            <!-- UPLOAD FORM -->
+            <div class="upload-section">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>1. SELECT FILE</label>
+                        <div style="position:relative;">
+                            <input type="file" id="fileInput"
+                                style="height: 100px; padding-top: 35px; border-style: dashed; text-align: center;">
+                            <div
+                                style="position:absolute; top:40%; left:0; width:100%; text-align:center; pointer-events:none; color:var(--text-muted); font-size:0.8rem;">
+                                Drag & Drop or Click to Browse
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>2. DESCRIPTION</label>
+                        <input type="text" id="fileDesc" placeholder="e.g. Q4 Financial Report.pdf">
+                    </div>
+
+                    <div class="input-group">
+                        <label>3. GENERATED HASH (ON-CHAIN SIM)</label>
+                        <input type="text" id="fileHashDisplay" readonly placeholder="Waiting for upload..." value="">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="handleUpload()"
+                    style="width: 100%; font-size: 1.1rem; padding: 1rem;">
+                    Upload & Generate Link
+                </button>
+
+                <div id="upload-status"
+                    style="margin-top: 1rem; text-align: center; font-family:var(--font-mono); font-size:0.9rem; color:var(--text-muted); min-height: 24px;">
+                </div>
+            </div>
+
+            <!-- REGISTRY TABLE -->
+            <div class="registry-container">
+                <h3 style="margin-bottom:1rem;">Recent Uploads</h3>
+                <div class="table-responsive">
+                    <table id="filesTable">
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                                <th>Description</th>
+                                <th>Hash</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be injected here -->
+                        </tbody>
+                    </table>
+                    <div id="empty-msg"
+                        style="text-align:center; padding:2rem; color:var(--text-muted); font-style:italic;">
+                        No files uploaded yet.
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- P2P OVERLAY MODAL -->
+    <div class="modal" id="p2p-modal">
+        <div class="modal-card">
+            <div class="loader"></div>
+            <h2 style="font-size: 2rem; margin-bottom: 1rem;">Incoming Transfer</h2>
+            <div id="modal-msg" style="color: var(--text-muted); margin-bottom: 2rem; font-family: var(--font-mono);">
+                Initializing secure P2P connection...
+            </div>
+            <div id="modal-actions" style="display:none;">
+                <button id="btn-download" class="btn btn-primary" style="width:100%;">Download Now</button>
+            </div>
+            <button onclick="closeModal()"
+                style="background:none; border:none; color:var(--text-muted); margin-top:20px; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script>
+        // --- CONFIGURATION ---
+        // Deployed on Sepolia Testnet
+        const CONTRACT_ADDRESS = "0x9D2A41CA886088F5077C1CFf1bB780097797BC9E";
+        const CONTRACT_ABI = [
+            "function uploadFile(string memory _hash, string memory _name, string memory _desc) public",
+            "function getFileCount() public view returns (uint256)",
+            "function getFile(uint256 _index) public view returns (string memory, string memory, string memory, address, uint256)",
+            "event FileUploaded(address indexed uploader, string fileName)"
+        ];
+
+        // --- GLOBAL STATE ---
+        let myPeer = null;
+        let myPeerId = null;
+        let hostedFiles = {};
+        let currentAccount = null;
+        let provider = null;
+        let signer = null;
+        let contract = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initPeerNode();
+
+            const params = new URLSearchParams(window.location.search);
+            const pId = params.get('peer');
+            const hash = params.get('hash');
+            if (pId && hash) startDownloadProcess(pId, hash);
+
+            // Auto-Connect if previously connected
+            if (window.ethereum && window.ethereum.selectedAddress) connectWallet();
+        });
+
+        function initPeerNode() {
+            myPeer = new Peer(null, { debug: 1 });
+            myPeer.on('open', id => { console.log('My ID:', id); myPeerId = id; });
+            myPeer.on('connection', conn => {
+                conn.on('data', data => {
+                    if (data.type === 'REQUEST_FILE') {
+                        const fileData = hostedFiles[data.hash];
+                        if (fileData) {
+                            console.log("Serving file:", fileData.meta.name);
+                            conn.send({
+                                type: 'FILE_RESPONSE',
+                                meta: fileData.meta,
+                                blob: fileData.file,
+                                originalHash: data.hash
+                            });
+                        }
+                    }
+                });
+            });
+        }
+
+        // --- CRYPTO UTILS ---
+        async function calculateHash(file) {
+            const buffer = await file.arrayBuffer();
+            const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = '0x' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex; // Returns hex string starting with 0x
+        }
+
+        async function connectWallet() {
+            try {
+                if (!window.ethereum) throw new Error("No Wallet Found");
+
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                signer = provider.getSigner();
+                currentAccount = await signer.getAddress();
+
+                // Initialize Contract
+                contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+                updateWalletUI();
+                console.log("Wallet Connected:", currentAccount);
+
+                // Load existing files
+                loadFilesFromBlockchain();
+
+            } catch (e) {
+                console.error("Wallet Connection Error:", e);
+                alert("Could not connect to wallet: " + e.message);
+            }
+        }
+
+        async function loadFilesFromBlockchain() {
+            if (!contract) return;
+
+            try {
+                if (CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
+                    console.log("Simulating Blockchain Fetch...");
+                    return;
+                }
+
+                const count = await contract.getFileCount();
+                console.log(`Found ${count} files on blockchain.`);
+
+                for (let i = 0; i < count; i++) {
+                    const file = await contract.getFile(i);
+                    // file struct: [hash, name, desc, uploader, timestamp]
+                    addFileRow(file[1], file[2], file[0], false);
+                }
+            } catch (e) {
+                console.warn("Could not fetch files:", e);
+            }
+        }
+
+        function updateWalletUI() {
+            document.getElementById('btn-wallet').style.display = 'none';
+            const badge = document.getElementById('wallet-display');
+            badge.style.display = 'flex';
+            document.getElementById('wallet-addr').innerText = currentAccount.substring(0, 6) + "..." + currentAccount.substring(38);
+        }
+
+        async function handleUpload() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            const desc = document.getElementById('fileDesc').value || "No description";
+            const hashDisplay = document.getElementById('fileHashDisplay');
+            const status = document.getElementById('upload-status');
+
+            if (!file) return alert("Please select a file.");
+
+            try {
+                // 1. Calculate Real Hash
+                status.innerHTML = "Calculating SHA-256 Hash...";
+                status.style.color = "var(--primary)";
+
+                const hash = await calculateHash(file);
+                hashDisplay.value = hash;
+                console.log("File Hash Calculated:", hash);
+
+                // 2. Store locally for P2P serving
+                hostedFiles[hash] = { file: file, meta: { name: file.name, type: file.type } };
+
+                /* 
+                 * BLOCKCHAIN INTERACTION 
+                 * In a real deploy, we would do: await contract.uploadFile(hash, file.name, desc);
+                 * For this demo, we will simulate the "Sign" delay if contract is invalid (address 0x0)
+                 */
+                if (contract && CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
+                    status.innerHTML = "Waiting for MetaMask Signature...";
+                    const tx = await contract.uploadFile(hash, file.name, desc);
+                    status.innerHTML = "Mining Transaction...";
+                    await tx.wait();
+                    status.innerHTML = "Confirmed on Blockchain! ✔";
+                } else {
+                    // Fallback for demo without deployed contract
+                    console.warn("Using Simulation Mode (No Contract Deployed)");
+                    status.innerHTML = "Signing (Simulated)...";
+                    await new Promise(r => setTimeout(r, 1500)); // Fake network delay
+                    status.innerHTML = "Ready to Share ✔";
+                }
+
+                addFileRow(file.name, desc, hash);
+
+            } catch (error) {
+                console.error("Upload failed:", error);
+                status.innerHTML = "Error: " + error.message;
+                status.style.color = "#ef4444";
+            }
+        }
+
+        function addFileRow(name, desc, hash) {
+            document.getElementById('empty-msg').style.display = 'none';
+            const tbody = document.querySelector('#filesTable tbody');
+            const tr = document.createElement('tr');
+
+            tr.innerHTML = `
+                <td><strong>${name}</strong></td>
+                <td style="color:var(--text-muted);">${desc}</td>
+                <td><span class="hash-mono" title="${hash}">${hash.substring(0, 10)}...${hash.substring(hash.length - 4)}</span></td>
+                <td>
+                    <button class="btn" style="padding:0.4rem 0.8rem; font-size:0.8rem;" onclick="share('${hash}')">⚡ Share Link</button>
+                    <div style="font-size:0.65rem; color:var(--text-muted); margin-top:4px;">Seeding via P2P</div>
+                </td>
+            `;
+            tbody.prepend(tr);
+        }
+
+        function share(hash) {
+            if (!myPeerId) return alert("P2P Network initializing... please wait.");
+
+            // Generate link with hash
+            const url = `${window.location.origin}${window.location.pathname}?peer=${myPeerId}&hash=${hash}`;
+
+            navigator.clipboard.writeText(url)
+                .then(() => alert("Share Link Copied to Clipboard!"))
+                .catch(() => prompt("Copy this link:", url));
+        }
+
+        function startDownloadProcess(hostId, expectedHash) {
+            const modal = document.getElementById('p2p-modal');
+            const msg = document.getElementById('modal-msg');
+            const actions = document.getElementById('modal-actions');
+            const btn = document.getElementById('btn-download');
+
+            modal.classList.add('active');
+            msg.innerHTML = "Initializing P2P Connection...";
+
+            const tryConn = () => {
+                if (!myPeer || !myPeer.open) {
+                    setTimeout(tryConn, 500);
+                    return;
+                }
+
+                msg.innerHTML = `Dialing Peer: ${hostId.substring(0, 6)}...<br><br>Requesting File ID: <span class="hash-mono">${expectedHash.substring(0, 10)}...</span>`;
+
+                const conn = myPeer.connect(hostId);
+
+                conn.on('open', () => {
+                    console.log("Connected to peer:", hostId);
+                    msg.innerHTML = "Connected! Requesting file data...";
+                    conn.send({ type: 'REQUEST_FILE', hash: expectedHash });
+                });
+
+                conn.on('data', async (data) => {
+                    if (data.type === 'FILE_RESPONSE') {
+                        msg.innerHTML = "Data received. Verifying Integrity...";
+
+                        const blobComp = new Blob([data.blob], { type: data.meta.type });
+
+                        // --- VERIFICATION STEP ---
+                        const receivedHash = await calculateHash(blobComp);
+                        console.log("Expected:", expectedHash);
+                        console.log("Received:", receivedHash);
+
+                        if (receivedHash.toLowerCase() === expectedHash.toLowerCase()) {
+                            // MATCH
+                            msg.innerHTML = `
+                                <div style="color:#4ade80; font-size:1.2rem; margin-bottom:0.5rem;">✔ Integrity Verified</div>
+                                <div style="font-size:0.9rem; margin-bottom:1rem;">SHA-256 Hashes Match. File is authentic.</div>
+                                <div style="font-weight:bold; color:white;">${data.meta.name}</div>
+                            `;
+
+                            const url = URL.createObjectURL(blobComp);
+                            actions.style.display = 'block';
+                            btn.onclick = () => {
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = data.meta.name;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                            };
+                        } else {
+                            // MISMATCH
+                            msg.innerHTML = `
+                                <div style="color:#ef4444; font-size:1.2rem; margin-bottom:0.5rem;">❌ SECURITY ALERT</div>
+                                <div style="font-size:0.9rem;">File Hash Mismatch!<br>The file may have been tampered with or corrupted.</div>
+                                <div style="margin-top:1rem; font-family:var(--font-mono); font-size:0.8rem;">
+                                    Expected: ${expectedHash.substring(0, 10)}...<br>
+                                    Actual: ${receivedHash.substring(0, 10)}...
+                                </div>
+                            `;
+                        }
+
+                        document.querySelector('.loader').style.display = 'none';
+                    }
+                });
+
+                conn.on('error', (err) => {
+                    console.error("Peer Error:", err);
+                    msg.innerHTML = "<span style='color:#ef4444'>Connection Failed. Peer might be offline.</span>";
+                });
+            };
+            tryConn();
+        }
+
+        function closeModal() {
+            document.getElementById('p2p-modal').classList.remove('active');
+            // Reset for next time if needed/reload
+            setTimeout(() => location.reload(), 500); // Simple reset for now
+        }
+    </script>
+</body>
+
+</html>
