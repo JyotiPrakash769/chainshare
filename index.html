@@ -472,9 +472,36 @@
             width: fit-content;
         }
 
-        #qr-target img {
-            display: block;
-            /* Removes bottom space */
+        /* Expiry Bubbles */
+        .expiry-options {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .expiry-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: var(--font-mono);
+            transition: all 0.3s ease;
+        }
+
+        .expiry-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .expiry-btn.selected {
+            background: rgba(74, 222, 128, 0.15);
+            /* Green tint */
+            border-color: #4ade80;
+            color: #4ade80;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
         }
     </style>
     <!-- QRCode Lib -->
@@ -540,15 +567,17 @@
 
                     <div class="input-group">
                         <label>3. LINK EXPIRATION (SELF-DESTRUCT)</label>
-                        <select id="fileExpiry">
-                            <option value="0">Never Expires</option>
-                            <option value="5">5 Minutes</option>
-                            <option value="10">10 Minutes</option>
-                            <option value="15">15 Minutes</option>
-                            <option value="30">30 Minutes</option>
-                            <option value="60">1 Hour</option>
-                            <option value="1440">1 Day</option>
-                        </select>
+                        <!-- Replaced Select with Bubble Toggles -->
+                        <div class="expiry-options">
+                            <button class="expiry-btn selected" onclick="selectExpiry(0, this)">Never</button>
+                            <button class="expiry-btn" onclick="selectExpiry(5, this)">5m</button>
+                            <button class="expiry-btn" onclick="selectExpiry(10, this)">10m</button>
+                            <button class="expiry-btn" onclick="selectExpiry(15, this)">15m</button>
+                            <button class="expiry-btn" onclick="selectExpiry(30, this)">30m</button>
+                            <button class="expiry-btn" onclick="selectExpiry(60, this)">1h</button>
+                            <button class="expiry-btn" onclick="selectExpiry(1440, this)">1d</button>
+                        </div>
+                        <input type="hidden" id="selectedExpiryMinutes" value="0">
                     </div>
 
                     <div class="input-group">
@@ -651,6 +680,16 @@
         let provider = null;
         let signer = null;
         let contract = null;
+
+        // Global Expiry Handler
+        function selectExpiry(mins, btn) {
+            // Update hidden value
+            document.getElementById('selectedExpiryMinutes').value = mins;
+
+            // Visual Update
+            document.querySelectorAll('.expiry-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
 
         window.addEventListener('DOMContentLoaded', () => {
             initPeerNode();
@@ -774,7 +813,9 @@
             const fileInput = document.getElementById('fileInput');
             const file = fileInput.files[0];
             const desc = document.getElementById('fileDesc').value || "No description";
-            const expiryMinutes = parseInt(document.getElementById('fileExpiry').value); // Get Value
+
+            // UPDATED: Read from Hidden Input
+            const expiryMinutes = parseInt(document.getElementById('selectedExpiryMinutes').value);
 
             const hashDisplay = document.getElementById('fileHashDisplay');
             const status = document.getElementById('upload-status');
