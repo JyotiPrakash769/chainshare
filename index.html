@@ -195,6 +195,7 @@
             margin-bottom: 2rem;
             background: linear-gradient(to right, #fff, #a5a5a5);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -1064,6 +1065,9 @@
             modal.classList.add('active');
             msg.innerHTML = "Initializing P2P Connection...";
 
+            // Guard to prevent multiple processing of the same file
+            let fileReceived = false;
+
             const tryConn = () => {
                 if (!myPeer || !myPeer.open) {
                     setTimeout(tryConn, 500);
@@ -1074,7 +1078,12 @@
 
                 const conn = myPeer.connect(hostId);
 
+                // Guard to ensure we only send the request once per connection
+                let requestSent = false;
+
                 conn.on('open', () => {
+                    if (requestSent) return;
+                    requestSent = true;
                     console.log("Connected to peer:", hostId);
                     msg.innerHTML = "Connected! Requesting file data...";
                     conn.send({ type: 'REQUEST_FILE', hash: expectedHash });
@@ -1082,6 +1091,10 @@
 
                 conn.on('data', async (data) => {
                     if (data.type === 'FILE_RESPONSE') {
+                        // FIX: Prevent double download processing
+                        if (fileReceived) return;
+                        fileReceived = true;
+
                         msg.innerHTML = "Data received. Verifying Integrity...";
 
                         const blobComp = new Blob([data.blob], { type: data.meta.type });
@@ -1101,6 +1114,9 @@
 
                             const url = URL.createObjectURL(blobComp);
                             actions.style.display = 'block';
+
+                            // Remove previous listeners to be safe (though element is unique)
+                            btn.onclick = null;
                             btn.onclick = () => {
                                 const a = document.createElement('a');
                                 a.href = url;
